@@ -1,0 +1,27 @@
+@model MiniAccountManagementSystem.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2 class="text-center mb-4">Login</h2>
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3 form-check">
+        <input asp-for="RememberMe" class="form-check-input" />
+        <label asp-for="RememberMe" class="form-check-label">Remember Me</label>
+    </div>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+</form>

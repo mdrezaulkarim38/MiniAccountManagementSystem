@@ -44,7 +44,7 @@ public class AccountController : Controller
                     {
                         cmd.CommandType = System.Data.CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@UserId", user.Id);
-                        cmd.Parameters.AddWithValue("@RoleName", "Admin");
+                        cmd.Parameters.AddWithValue("@RoleName", "Viewer");
                         conn.Open();
                         cmd.ExecuteNonQuery();
                     }
@@ -61,5 +61,35 @@ public class AccountController : Controller
 
         return View(model);
     }
+
+    public IActionResult Login()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await _signInManager.PasswordSignInAsync(model.Email!, model.Password!, model.RememberMe, false);
+            if (result.Succeeded)
+            {
+                TempData["Success"] = "Login Successful";
+                return RedirectToAction("Index", "Home");
+            }
+
+            TempData["Error"] = "Invalid login attempt.";
+            ModelState.AddModelError("", "Invalid login attempt.");
+        }
+        return View(model);
+    }
+
+    public async Task<IActionResult> Logout()
+    {
+        await _signInManager.SignOutAsync();
+        return RedirectToAction("Login", "Account");
+    }
+
 
 }
