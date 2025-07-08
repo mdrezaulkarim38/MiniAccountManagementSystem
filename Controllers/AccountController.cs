@@ -42,7 +42,43 @@ public class AccountController : Controller
         return View(accounts);
     }
 
+    [HttpGet]
+    public IActionResult CreateAccount()
+    {
+        return View();
+    }
     
+    [HttpPost]
+    public IActionResult CreateAccount(AccountModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                using (var cmd = new SqlCommand("sp_ManageChartOfAccounts", conn))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@AccountId", DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AccountName", model.AccountName);
+                    cmd.Parameters.AddWithValue("@ParentId", (object?)model.ParentId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Operation", "INSERT");
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    TempData["Success"] = "Account created successfully.";
+                    return RedirectToAction("ChartOfAccount");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error: " + ex.Message;
+            }
+        }
+
+        return View(model);
+    }
     
     public IActionResult VoucherList()
     {
