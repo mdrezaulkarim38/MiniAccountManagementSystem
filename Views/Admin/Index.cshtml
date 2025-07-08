@@ -1,5 +1,40 @@
+@model List<UserWithRoleViewModel>
 @{
     ViewData["Title"] = "User List";
+    var roles = ViewBag.AllRoles as List<string>;
 }
 
-<h1> User List</h1>
+<h2>User List</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Current Role</th>
+            <th>Change Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.Email</td>
+                <td>@user.CurrentRole</td>
+                <td>
+                    <form asp-action="ChangeRole" method="post" class="d-flex align-items-center">
+                        <input type="hidden" name="userId" value="@user.UserId" />
+                        <select name="newRole" class="form-select me-2" style="width: 200px;">
+                            @foreach (var role in roles!)
+                            {
+                                <option value="@role" selected="@(role == user.CurrentRole)">
+                                    @role
+                                </option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

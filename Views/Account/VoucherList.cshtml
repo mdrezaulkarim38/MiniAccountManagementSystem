@@ -12,7 +12,7 @@
     <a asp-action="CreateVoucher" class="btn btn-success mb-3">Add New Voucher</a>
 }
 
-<table class="table table-bordered table-striped">
+<table id="voucherTable" class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>ID</th>
@@ -35,7 +35,8 @@
                     {
                         <a asp-action="EditVoucher" asp-route-id="@voucher.VoucherId" class="btn btn-sm btn-warning">Edit</a>
                         <form asp-action="DeleteVoucher" asp-route-id="@voucher.VoucherId" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this voucher?')">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
                     }
                     else
@@ -47,3 +48,17 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#voucherTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['copyHtml5', 'excelHtml5'],
+                paging: true,
+                searching: true,
+                ordering: true
+            });
+        });
+    </script>
+}

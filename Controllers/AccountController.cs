@@ -300,4 +300,152 @@ public class AccountController : Controller
         }
         return list;
     }
+
+
+    [HttpGet]
+    [Authorize(Roles = "Admin,Accountant")]
+    public IActionResult EditVoucher(int id)
+    {
+        var model = new VoucherFormModel();
+        model.Entries = new List<VoucherEntryModel>();
+
+        using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+
+        using (var cmd = new SqlCommand("SELECT * FROM Vouchers WHERE VoucherId = @id", conn))
+        {
+            cmd.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                model.VoucherDate = (DateTime)reader["VoucherDate"];
+                model.ReferenceNo = reader["ReferenceNo"].ToString()!;
+                model.VoucherTypeId = (int)reader["VoucherTypeId"];
+            }
+            conn.Close();
+        }
+
+        using (var cmd = new SqlCommand(@"
+        SELECT E.AccountId, A.AccountName, E.DebitAmount, E.CreditAmount 
+        FROM VoucherEntries E
+        INNER JOIN ChartOfAccounts A ON E.AccountId = A.AccountId
+        WHERE E.VoucherId = @id", conn))
+        {
+            cmd.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                model.Entries.Add(new VoucherEntryModel
+                {
+                    AccountId = (int)reader["AccountId"],
+                    AccountName = reader["AccountName"].ToString(),
+                    DebitAmount = (decimal)reader["DebitAmount"],
+                    CreditAmount = (decimal)reader["CreditAmount"]
+                });
+            }
+        }
+
+        ViewBag.VoucherTypes = GetVoucherTypes();
+        ViewBag.Accounts = GetChartOfAccounts();
+        ViewBag.VoucherId = id;
+
+        return View("EditVoucher", model);
+    }
+
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Accountant")]
+    public IActionResult EditVoucher(int id, VoucherFormModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                var dt = new DataTable();
+                dt.Columns.Add("AccountId", typeof(int));
+                dt.Columns.Add("DebitAmount", typeof(decimal));
+                dt.Columns.Add("CreditAmount", typeof(decimal));
+
+                foreach (var entry in model.Entries)
+                    dt.Rows.Add(entry.AccountId, entry.DebitAmount, entry.CreditAmount);
+
+                using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+                conn.Open();
+
+                using (var cmd = new SqlCommand(@"
+                UPDATE Vouchers 
+                SET VoucherDate = @VoucherDate, ReferenceNo = @ReferenceNo, VoucherTypeId = @VoucherTypeId 
+                WHERE VoucherId = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@VoucherDate", model.VoucherDate);
+                    cmd.Parameters.AddWithValue("@ReferenceNo", model.ReferenceNo);
+                    cmd.Parameters.AddWithValue("@VoucherTypeId", model.VoucherTypeId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Delete old entries
+                using (var cmd = new SqlCommand("DELETE FROM VoucherEntries WHERE VoucherId = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    using var cmd = new SqlCommand(@"
+                    INSERT INTO VoucherEntries (VoucherId, AccountId, DebitAmount, CreditAmount)
+                    VALUES (@VoucherId, @AccountId, @Debit, @Credit)", conn);
+
+                    cmd.Parameters.AddWithValue("@VoucherId", id);
+                    cmd.Parameters.AddWithValue("@AccountId", row["AccountId"]);
+                    cmd.Parameters.AddWithValue("@Debit", row["DebitAmount"]);
+                    cmd.Parameters.AddWithValue("@Credit", row["CreditAmount"]);
+                    cmd.ExecuteNonQuery();
+                }
+
+                TempData["Success"] = "Voucher updated successfully.";
+                return RedirectToAction("VoucherList");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error while updating: " + ex.Message;
+            }
+        }
+
+        ViewBag.VoucherTypes = GetVoucherTypes();
+        ViewBag.Accounts = GetChartOfAccounts();
+        ViewBag.VoucherId = id;
+
+        return View("EditVoucher", model);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin,Accountant")]
+    public IActionResult DeleteVoucher(int id)
+    {
+        try
+        {
+            using var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            conn.Open();
+
+            using var deleteEntries = new SqlCommand("DELETE FROM VoucherEntries WHERE VoucherId = @id", conn);
+            deleteEntries.Parameters.AddWithValue("@id", id);
+            deleteEntries.ExecuteNonQuery();
+
+            using var deleteVoucher = new SqlCommand("DELETE FROM Vouchers WHERE VoucherId = @id", conn);
+            deleteVoucher.Parameters.AddWithValue("@id", id);
+            deleteVoucher.ExecuteNonQuery();
+
+            TempData["Success"] = "Voucher deleted successfully.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Delete failed: " + ex.Message;
+        }
+
+        return RedirectToAction("VoucherList");
+    }
+
 }

@@ -1,0 +1,67 @@
+@model VoucherFormModel
+
+@{
+    ViewData["Title"] = "Edit Voucher";
+    var voucherTypes = ViewBag.VoucherTypes as List<SelectListItem>;
+    var accounts = ViewBag.Accounts as List<SelectListItem>;
+    int voucherId = ViewBag.VoucherId != null ? (int)ViewBag.VoucherId : 0;
+}
+
+<h2>Edit Voucher</h2>
+
+<form asp-action="EditVoucher" asp-route-id="@voucherId" method="post">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="VoucherDate" class="form-label"></label>
+            <input asp-for="VoucherDate" class="form-control" type="date" />
+            <span asp-validation-for="VoucherDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ReferenceNo" class="form-label"></label>
+            <input asp-for="ReferenceNo" class="form-control" />
+            <span asp-validation-for="ReferenceNo" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
+            <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
+            <span asp-validation-for="VoucherTypeId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <h5>Entries</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Entries.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
+                        <span asp-validation-for="@Model.Entries[i].AccountId" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="@Model.Entries[i].DebitAmount" class="form-control" />
+                        <span asp-validation-for="@Model.Entries[i].DebitAmount" class="text-danger"></span>
+                    </td>
+                    <td>
+                        <input asp-for="@Model.Entries[i].CreditAmount" class="form-control" />
+                        <span asp-validation-for="@Model.Entries[i].CreditAmount" class="text-danger"></span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Update Voucher</button>
+    <a asp-action="VoucherList" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
