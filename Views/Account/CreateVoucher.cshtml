@@ -1,0 +1,59 @@
+@model VoucherFormModel
+@{
+    ViewData["Title"] = "Create Voucher";
+    var voucherTypes = ViewBag.VoucherTypes as List<SelectListItem>;
+    var accounts = ViewBag.Accounts as List<SelectListItem>;
+}
+
+<h2>Create Voucher</h2>
+
+<form asp-action="CreateVoucher" method="post">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="VoucherDate" class="form-label"></label>
+            <input asp-for="VoucherDate" class="form-control" type="date" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ReferenceNo" class="form-label"></label>
+            <input asp-for="ReferenceNo" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
+            <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
+        </div>
+    </div>
+
+    <h5>Entries</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Account</th>
+                <th>Debit</th>
+                <th>Credit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Entries.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
+                    </td>
+                    <td>
+                        <input asp-for="@Model.Entries[i].DebitAmount" class="form-control" />
+                    </td>
+                    <td>
+                        <input asp-for="@Model.Entries[i].CreditAmount" class="form-control" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Submit</button>
+    <a asp-action="VoucherList" class="btn btn-secondary">Back to List</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
