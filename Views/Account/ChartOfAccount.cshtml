@@ -5,12 +5,14 @@
 
 <h2>Chart of Accounts</h2>
 <a asp-action="CreateAccount" class="btn btn-primary">Create New Account</a>
+
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>ID</th>
             <th>Account Name</th>
             <th>Parent</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +22,13 @@
                 <td>@account.AccountId</td>
                 <td>@account.AccountName</td>
                 <td>@(account.ParentName ?? "Root")</td>
+                <td>
+                    <a asp-action="EditAccount" asp-route-id="@account.AccountId" class="btn btn-sm btn-warning">Edit</a>
+
+                    <form asp-action="DeleteAccount" asp-route-id="@account.AccountId" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

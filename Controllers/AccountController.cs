@@ -47,7 +47,7 @@ public class AccountController : Controller
     {
         return View();
     }
-    
+
     [HttpPost]
     public IActionResult CreateAccount(AccountModel model)
     {
@@ -79,7 +79,90 @@ public class AccountController : Controller
 
         return View(model);
     }
-    
+
+    [HttpGet]
+    public IActionResult EditAccount(int id)
+    {
+        AccountModel account = new();
+        using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+        using (var cmd = new SqlCommand("SELECT * FROM ChartOfAccounts WHERE AccountId = @id", conn))
+        {
+            cmd.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    account.AccountId = (int)reader["AccountId"];
+                    account.AccountName = reader["AccountName"].ToString()!;
+                    account.ParentId = reader["ParentId"] != DBNull.Value ? (int?)reader["ParentId"] : null;
+                }
+            }
+        }
+
+        return View(account);
+    }
+
+    [HttpPost]
+    public IActionResult EditAccount(AccountModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                using (var cmd = new SqlCommand("sp_ManageChartOfAccounts", conn))
+                {
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@AccountId", model.AccountId);
+                    cmd.Parameters.AddWithValue("@AccountName", model.AccountName);
+                    cmd.Parameters.AddWithValue("@ParentId", (object?)model.ParentId ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@Operation", "UPDATE");
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+
+                    TempData["Success"] = "Account updated successfully.";
+                    return RedirectToAction("ChartOfAccount");
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Update failed: " + ex.Message;
+            }
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public IActionResult DeleteAccount(int id)
+    {
+        try
+        {
+            using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            using (var cmd = new SqlCommand("sp_ManageChartOfAccounts", conn))
+            {
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@AccountId", id);
+                cmd.Parameters.AddWithValue("@AccountName", DBNull.Value);
+                cmd.Parameters.AddWithValue("@ParentId", DBNull.Value);
+                cmd.Parameters.AddWithValue("@Operation", "DELETE");
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["Success"] = "Account deleted successfully.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Delete failed: " + ex.Message;
+        }
+
+        return RedirectToAction("ChartOfAccount");
+    }
+
     public IActionResult VoucherList()
     {
         return View();
