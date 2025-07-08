@@ -155,28 +155,6 @@ namespace MiniAccountManagementSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MiniAccountManagementSystem.Models.AccountModel", b =>
-                {
-                    b.Property<int>("AccountId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
-
-                    b.Property<string>("AccountName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ParentName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AccountId");
-
-                    b.ToTable("ChartOfAccounts");
-                });
-
             modelBuilder.Entity("MiniAccountManagementSystem.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
