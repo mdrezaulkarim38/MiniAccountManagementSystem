@@ -1,5 +1,28 @@
+@model List<MiniAccountManagementSystem.Models.AccountModel>
 @{
     ViewData["Title"] = "Chart Of Account";
 }
 
-<h1>Chart of Account</h1>
+<h2>Chart of Accounts</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Account Name</th>
+            <th>Parent</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model)
+        {
+            <tr>
+                <td>@account.AccountId</td>
+                <td>@account.AccountName</td>
+                <td>@(account.ParentName ?? "Root")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="CreateAccount" class="btn btn-primary">Create New Account</a>
