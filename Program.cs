@@ -16,8 +16,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddControllersWithViews();
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
 });
 
 var app = builder.Build();
