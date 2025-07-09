@@ -90,4 +90,9 @@ public class AuthController : Controller
         await _signInManager.SignOutAsync();
         return RedirectToAction("Login", "Auth");
     }
+
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
 }
