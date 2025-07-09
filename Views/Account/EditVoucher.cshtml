@@ -7,61 +7,127 @@
     int voucherId = ViewBag.VoucherId != null ? (int)ViewBag.VoucherId : 0;
 }
 
-<h2>Edit Voucher</h2>
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Voucher</h4>
+        </div>
 
-<form asp-action="EditVoucher" asp-route-id="@voucherId" method="post">
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label asp-for="VoucherDate" class="form-label"></label>
-            <input asp-for="VoucherDate" class="form-control" type="date" />
-            <span asp-validation-for="VoucherDate" class="text-danger"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="ReferenceNo" class="form-label"></label>
-            <input asp-for="ReferenceNo" class="form-control" />
-            <span asp-validation-for="ReferenceNo" class="text-danger"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
-            <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
-            <span asp-validation-for="VoucherTypeId" class="text-danger"></span>
+        <div class="card-body">
+            <form asp-action="EditVoucher" asp-route-id="@voucherId" method="post" id="editVoucherForm">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="VoucherDate" class="form-label">Date</label>
+                        <input asp-for="VoucherDate" class="form-control" type="date" />
+                        <span asp-validation-for="VoucherDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ReferenceNo" class="form-label">Reference No</label>
+                        <input asp-for="ReferenceNo" class="form-control" />
+                        <span asp-validation-for="ReferenceNo" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
+                        <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
+                        <span asp-validation-for="VoucherTypeId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-2">Voucher Entries</h5>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Account</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Entries.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
+                                    <span asp-validation-for="@Model.Entries[i].AccountId" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="@Model.Entries[i].DebitAmount" class="form-control debit-field" type="number" step="0.01" min="0" />
+                                    <span asp-validation-for="@Model.Entries[i].DebitAmount" class="text-danger small"></span>
+                                </td>
+                                <td>
+                                    <input asp-for="@Model.Entries[i].CreditAmount" class="form-control credit-field" type="number" step="0.01" min="0" />
+                                    <span asp-validation-for="@Model.Entries[i].CreditAmount" class="text-danger small"></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="row my-4">
+                    <div class="col-md-6 offset-md-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h6 class="card-title mb-3">Balance Summary</h6>
+                                <div class="d-flex justify-content-around">
+                                    <div><strong>Total Debit:</strong> <span id="totalDebit">0.00</span></div>
+                                    <div><strong>Total Credit:</strong> <span id="totalCredit">0.00</span></div>
+                                </div>
+                                <div class="mt-2">
+                                    <span id="differenceMessage" class="text-danger fw-bold d-none">
+                                        Debit and Credit totals must be equal!
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button id="submitBtn" type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Update Voucher
+                    </button>
+                    <a asp-action="VoucherList" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-
-    <h5>Entries</h5>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Account</th>
-                <th>Debit</th>
-                <th>Credit</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Entries.Count; i++)
-            {
-                <tr>
-                    <td>
-                        <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
-                        <span asp-validation-for="@Model.Entries[i].AccountId" class="text-danger"></span>
-                    </td>
-                    <td>
-                        <input asp-for="@Model.Entries[i].DebitAmount" class="form-control" />
-                        <span asp-validation-for="@Model.Entries[i].DebitAmount" class="text-danger"></span>
-                    </td>
-                    <td>
-                        <input asp-for="@Model.Entries[i].CreditAmount" class="form-control" />
-                        <span asp-validation-for="@Model.Entries[i].CreditAmount" class="text-danger"></span>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <button type="submit" class="btn btn-primary">Update Voucher</button>
-    <a asp-action="VoucherList" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function calculateTotals() {
+            let debitTotal = 0;
+            let creditTotal = 0;
+
+            $('.debit-field').each(function () {
+                debitTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('.credit-field').each(function () {
+                creditTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('#totalDebit').text(debitTotal.toFixed(2));
+            $('#totalCredit').text(creditTotal.toFixed(2));
+
+            if (debitTotal !== creditTotal) {
+                $('#differenceMessage').removeClass('d-none');
+                $('#submitBtn').prop('disabled', true);
+            } else {
+                $('#differenceMessage').addClass('d-none');
+                $('#submitBtn').prop('disabled', false);
+            }
+        }
+
+        $(document).ready(function () {
+            calculateTotals();
+
+            $('.debit-field, .credit-field').on('input', function () {
+                calculateTotals();
+            });
+        });
+    </script>
 }

@@ -4,59 +4,76 @@
     var role = ViewBag.Role as string;
 }
 
-<h2>Voucher List</h2>
-<p><strong>Logged in as:</strong> @role</p>
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="bi bi-receipt-cutoff me-2"></i> Voucher List
+            </h4>
+            <span class="small">Logged in as: <strong>@role</strong></span>
+        </div>
 
-@if (User.IsInRole("Admin") || User.IsInRole("Accountant"))
-{
-    <a asp-action="CreateVoucher" class="btn btn-success mb-3">Add New Voucher</a>
-}
+        <div class="card-body">
+            @if (User.IsInRole("Admin") || User.IsInRole("Accountant"))
+            {
+                <a asp-action="CreateVoucher" class="btn btn-success mb-3">
+                    <i class="bi bi-plus-circle"></i> Add New Voucher
+                </a>
+            }
 
-<table id="voucherTable" class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Reference No</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var voucher in Model)
-        {
-            <tr>
-                <td>@voucher.VoucherId</td>
-                <td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td>
-                <td>@voucher.ReferenceNo</td>
-                <td>@voucher.VoucherType</td>
-                <td>@voucher.VoucherAmount</td>
-                <td>
-                    @if (User.IsInRole("Admin") || User.IsInRole("Accountant"))
+            <table id="voucherTable" class="table table-hover table-striped table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 8%;">ID</th>
+                        <th style="width: 15%;">Date</th>
+                        <th>Reference No</th>
+                        <th>Type</th>
+                        <th style="width: 12%;">Amount</th>
+                        <th style="width: 18%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var voucher in Model)
                     {
-                        <a asp-action="EditVoucher" asp-route-id="@voucher.VoucherId" class="btn btn-sm btn-warning">Edit</a>
-                        <form asp-action="DeleteVoucher" asp-route-id="@voucher.VoucherId" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure?')">Delete</button>
-                        </form>
+                        <tr>
+                            <td>@voucher.VoucherId</td>
+                            <td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td>
+                            <td>@voucher.ReferenceNo</td>
+                            <td>@voucher.VoucherType</td>
+                            <td>৳ @(Convert.ToDecimal(voucher.VoucherAmount).ToString("N2"))</td>
+                            <td>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Accountant"))
+                                {
+                                    <a asp-action="EditVoucher" asp-route-id="@voucher.VoucherId" class="btn btn-sm btn-warning me-1">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form asp-action="DeleteVoucher" asp-route-id="@voucher.VoucherId" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this voucher?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">View only</span>
+                                }
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="text-muted">View only</span>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script>
         $(document).ready(function () {
             $('#voucherTable').DataTable({
                 dom: 'Bfrtip',
-                buttons: ['copyHtml5', 'excelHtml5'],
+                buttons: ['excelHtml5'],
                 paging: true,
                 searching: true,
                 ordering: true

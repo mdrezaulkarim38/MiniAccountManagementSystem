@@ -5,55 +5,121 @@
     var accounts = ViewBag.Accounts as List<SelectListItem>;
 }
 
-<h2>Create Voucher</h2>
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-journal-plus me-2"></i>Create Voucher</h4>
+        </div>
 
-<form asp-action="CreateVoucher" method="post">
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label asp-for="VoucherDate" class="form-label"></label>
-            <input asp-for="VoucherDate" class="form-control" type="date" />
-        </div>
-        <div class="col-md-4">
-            <label asp-for="ReferenceNo" class="form-label"></label>
-            <input asp-for="ReferenceNo" class="form-control" />
-        </div>
-        <div class="col-md-4">
-            <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
-            <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
+        <div class="card-body">
+            <form asp-action="CreateVoucher" method="post" id="voucherForm">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="VoucherDate" class="form-label">Date</label>
+                        <input asp-for="VoucherDate" class="form-control" type="date" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ReferenceNo" class="form-label">Reference No</label>
+                        <input asp-for="ReferenceNo" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="VoucherTypeId" class="form-label">Voucher Type</label>
+                        <select asp-for="VoucherTypeId" asp-items="voucherTypes" class="form-select"></select>
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-2">Voucher Entries</h5>
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Account</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Entries.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
+                                </td>
+                                <td>
+                                    <input asp-for="@Model.Entries[i].DebitAmount" class="form-control debit-field" type="number" step="0.01" min="0" />
+                                </td>
+                                <td>
+                                    <input asp-for="@Model.Entries[i].CreditAmount" class="form-control credit-field" type="number" step="0.01" min="0" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="row my-4">
+                    <div class="col-md-6 offset-md-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h6 class="card-title mb-3">Balance Summary</h6>
+                                <div class="d-flex justify-content-around">
+                                    <div><strong>Total Debit:</strong> <span id="totalDebit">0.00</span></div>
+                                    <div><strong>Total Credit:</strong> <span id="totalCredit">0.00</span></div>
+                                </div>
+                                <div class="mt-2">
+                                    <span id="differenceMessage" class="text-danger fw-bold d-none">
+                                        Debit and Credit totals must be equal!
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button id="submitBtn" type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Submit
+                    </button>
+                    <a asp-action="VoucherList" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left-circle"></i> Back to List
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
-
-    <h5>Entries</h5>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Account</th>
-                <th>Debit</th>
-                <th>Credit</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Entries.Count; i++)
-            {
-                <tr>
-                    <td>
-                        <select asp-for="@Model.Entries[i].AccountId" asp-items="accounts" class="form-select"></select>
-                    </td>
-                    <td>
-                        <input asp-for="@Model.Entries[i].DebitAmount" class="form-control" />
-                    </td>
-                    <td>
-                        <input asp-for="@Model.Entries[i].CreditAmount" class="form-control" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <button type="submit" class="btn btn-success">Submit</button>
-    <a asp-action="VoucherList" class="btn btn-secondary">Back to List</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function calculateTotals() {
+            let debitTotal = 0;
+            let creditTotal = 0;
+
+            $('.debit-field').each(function () {
+                debitTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('.credit-field').each(function () {
+                creditTotal += parseFloat($(this).val()) || 0;
+            });
+
+            $('#totalDebit').text(debitTotal.toFixed(2));
+            $('#totalCredit').text(creditTotal.toFixed(2));
+
+            if (debitTotal !== creditTotal) {
+                $('#differenceMessage').removeClass('d-none');
+                $('#submitBtn').prop('disabled', true);
+            } else {
+                $('#differenceMessage').addClass('d-none');
+                $('#submitBtn').prop('disabled', false);
+            }
+        }
+
+        $(document).ready(function () {
+            calculateTotals();
+
+            $('.debit-field, .credit-field').on('input', function () {
+                calculateTotals();
+            });
+        });
+    </script>
 }
