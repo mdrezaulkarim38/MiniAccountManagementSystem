@@ -19,6 +19,7 @@
             <th>Date</th>
             <th>Reference No</th>
             <th>Type</th>
+            <th>Amount</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -30,6 +31,7 @@
                 <td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td>
                 <td>@voucher.ReferenceNo</td>
                 <td>@voucher.VoucherType</td>
+                <td>@voucher.VoucherAmount</td>
                 <td>
                     @if (User.IsInRole("Admin") || User.IsInRole("Accountant"))
                     {

@@ -173,10 +173,8 @@ public class AccountController : Controller
 
         using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
         using (var cmd = new SqlCommand(@"
-        SELECT V.VoucherId, V.VoucherDate, V.ReferenceNo, T.TypeName AS VoucherType
-        FROM Vouchers V
-        INNER JOIN VoucherTypes T ON V.VoucherTypeId = T.Id
-        ORDER BY V.VoucherDate DESC", conn))
+        SELECT V.VoucherId, V.VoucherDate, V.ReferenceNo, T.TypeName AS VoucherType, SUM(T2.DebitAmount) AS VoucherAmount FROM Vouchers V INNER JOIN VoucherTypes T ON V.VoucherTypeId = T.Id INNER JOIN VoucherEntries T2 ON T2.VoucherId = V.VoucherId GROUP BY V.VoucherId, V.VoucherDate, V.ReferenceNo, T.TypeName ORDER BY V.VoucherDate DESC
+", conn))
         {
             conn.Open();
             using (var reader = cmd.ExecuteReader())
@@ -188,7 +186,8 @@ public class AccountController : Controller
                         VoucherId = (int)reader["VoucherId"],
                         VoucherDate = (DateTime)reader["VoucherDate"],
                         ReferenceNo = reader["ReferenceNo"].ToString()!,
-                        VoucherType = reader["VoucherType"].ToString()!
+                        VoucherType = reader["VoucherType"].ToString()!,
+                        VoucherAmount = (decimal)reader["VoucherAmount"]!
                     });
                 }
             }
