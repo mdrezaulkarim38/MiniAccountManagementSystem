@@ -8,7 +8,7 @@ using System.Data;
 
 namespace MiniAccountManagementSystem.Controllers;
 
-[Authorize(Roles = "Admin,Accountant")]
+[Authorize]
 public class AccountController : Controller
 {
     private readonly IConfiguration _configuration;
@@ -16,6 +16,8 @@ public class AccountController : Controller
     {
         _configuration = configuration;
     }
+
+    [Authorize(Roles = "Admin,Accountant")]
     public IActionResult ChartOfAccount()
     {
         List<AccountModel> accounts = new();
@@ -45,6 +47,7 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Accountant")]
     public IActionResult CreateAccount()
     {
         return View();
@@ -83,6 +86,7 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Accountant")]
     public IActionResult EditAccount(int id)
     {
         AccountModel account = new();
@@ -201,6 +205,7 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Accountant")]
     public IActionResult CreateVoucher()
     {
         var model = new VoucherFormModel
