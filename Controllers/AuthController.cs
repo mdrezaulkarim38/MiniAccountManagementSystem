@@ -1,23 +1,16 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MiniAccountManagementSystem.Interfaces;
 using MiniAccountManagementSystem.Models;
-using Microsoft.Data.SqlClient;
 
 namespace MiniAccountManagementSystem.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly IConfiguration _configuration;
+    private readonly IAuthService _authService;
 
-    public AuthController(UserManager<ApplicationUser> userManager,
-                              SignInManager<ApplicationUser> signInManager,
-                              IConfiguration configuration)
+    public AuthController(IAuthService authService)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
-        _configuration = configuration;
+        _authService = authService;
     }
     public IActionResult Register()
     {
@@ -29,34 +22,13 @@ public class AuthController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email
-            };
+            var (success, message) = await _authService.RegisterAsync(model);
+            TempData[success ? "Success" : "Error"] = message;
 
-            var result = await _userManager.CreateAsync(user, model.Password!);
-            if (result.Succeeded)
-            {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-                {
-                    using (var cmd = new SqlCommand("sp_AssignUserToRole", conn))
-                    {
-                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@UserId", user.Id);
-                        cmd.Parameters.AddWithValue("@RoleName", "Viewer");
-                        conn.Open();
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-
-                TempData["Success"] = "Registration successful!";
-                await _signInManager.SignInAsync(user, isPersistent: false);
+            if (success)
                 return RedirectToAction("Index", "Home");
-            }
-            TempData["Error"] = string.Join(" ", result.Errors.Select(e => e.Description));
-            foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
+
+            ModelState.AddModelError("", message);
         }
 
         return View(model);
@@ -72,22 +44,21 @@ public class AuthController : Controller
     {
         if (ModelState.IsValid)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email!, model.Password!, model.RememberMe, false);
-            if (result.Succeeded)
-            {
-                TempData["Success"] = "Login Successful";
-                return RedirectToAction("Index", "Home");
-            }
+            var (success, message) = await _authService.LoginAsync(model);
+            TempData[success ? "Success" : "Error"] = message;
 
-            TempData["Error"] = "Invalid login attempt.";
-            ModelState.AddModelError("", "Invalid login attempt.");
+            if (success)
+                return RedirectToAction("Index", "Home");
+
+            ModelState.AddModelError("", message);
         }
+
         return View(model);
     }
 
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await _authService.LogoutAsync();
         return RedirectToAction("Login", "Auth");
     }
 

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MiniAccountManagementSystem.Data;
+using MiniAccountManagementSystem.Interfaces;
 using MiniAccountManagementSystem.Models;
+using MiniAccountManagementSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Auth/Login";
     options.AccessDeniedPath = "/Auth/AccessDenied";
 });
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
 
 var app = builder.Build();
 
