@@ -42,7 +42,7 @@ public class AuthService : IAuthService
             {
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@UserId", user.Id);
-                cmd.Parameters.AddWithValue("@RoleName", "Viewer");
+                cmd.Parameters.AddWithValue("@RoleName", "Admin");
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
