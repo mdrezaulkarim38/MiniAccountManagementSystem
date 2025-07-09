@@ -260,7 +260,3 @@ END
 **Rezaul Karim**
 📧 Email: `mdrezaulkarim31295@gmail.com`
 🐙 GitHub: [@mdrezaulkarim38](https://github.com/mdrezaulkarim38)
-
----
-
-> 📝 Feel free to fork, modify, and extend this project!
