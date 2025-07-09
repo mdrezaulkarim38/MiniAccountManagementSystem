@@ -3,35 +3,47 @@
     ViewData["Title"] = "Chart Of Account";
 }
 
-<h2>Chart of Accounts</h2>
-<a asp-action="CreateAccount" class="btn btn-primary">Create New Account</a>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">Chart of Accounts</h2>
+        <a asp-action="CreateAccount" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Create New Account
+        </a>
+    </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Account Name</th>
-            <th>Parent</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var account in Model)
-        {
-            <tr>
-                <td>@account.AccountId</td>
-                <td>@account.AccountName</td>
-                <td>@(account.ParentName ?? "Root")</td>
-                <td>
-                    <a asp-action="EditAccount" asp-route-id="@account.AccountId" class="btn btn-sm btn-warning">Edit</a>
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col" style="width: 10%;">ID</th>
+                        <th scope="col" style="width: 45%;">Account Name</th>
+                        <th scope="col" style="width: 30%;">Parent</th>
+                        <th scope="col" style="width: 15%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var account in Model)
+                    {
+                        <tr>
+                            <td>@account.AccountId</td>
+                            <td>@account.AccountName</td>
+                            <td>@(account.ParentName ?? "Root")</td>
+                            <td>
+                                <a asp-action="EditAccount" asp-route-id="@account.AccountId" class="btn btn-sm btn-warning me-1" title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
 
-                    <form asp-action="DeleteAccount" asp-route-id="@account.AccountId" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-
+                                <form asp-action="DeleteAccount" asp-route-id="@account.AccountId" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

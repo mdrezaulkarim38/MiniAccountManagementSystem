@@ -3,26 +3,40 @@
     ViewData["Title"] = "Edit Account";
 }
 
-<h2>Edit Account</h2>
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Edit New Chart of Accounts</h4>
+        </div>
 
-<form asp-action="EditAccount" method="post">
-    <input type="hidden" asp-for="AccountId" />
+        <div class="card-body">
+            <form asp-action="EditAccount" method="post">
+                <input type="hidden" asp-for="AccountId">
+                <div class="mb-3">
+                    <label asp-for="AccountName" class="form-label">Account Name <span
+                            class="text-danger">*</span></label>
+                    <input asp-for="AccountName" class="form-control" placeholder="Enter account name" />
+                    <span asp-validation-for="AccountName" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="AccountName" class="form-label">Account Name</label>
-        <input asp-for="AccountName" class="form-control" />
-        <span asp-validation-for="AccountName" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="ParentId" class="form-label">Parent Account ID</label>
+                    <input asp-for="ParentId" class="form-control" type="number" placeholder="Optional" />
+                    <span asp-validation-for="ParentId" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Update
+                    </button>
+                    <a asp-action="ChartOfAccount" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="ParentId" class="form-label">Parent ID (optional)</label>
-        <input asp-for="ParentId" class="form-control" type="number" />
-        <span asp-validation-for="ParentId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="ChartOfAccount" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
