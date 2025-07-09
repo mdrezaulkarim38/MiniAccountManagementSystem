@@ -40,10 +40,10 @@ A modern ASP.NET Core MVC application for managing:
 git clone https://github.com/yourusername/MiniAccountManagementSystem.git
 cd MiniAccountManagementSystem
 ````
-
+---
 ### ⚙️ 2. Configure Database Connection
 
-Edit `appsettings.json`:
+Open `appsettings.json` and update your SQL Server connection string:
 
 ```json
 "ConnectionStrings": {
@@ -51,9 +51,22 @@ Edit `appsettings.json`:
 }
 ```
 
-### 🗂 3. Run SQL Setup Scripts (Below)
+---
 
-Use SSMS or your preferred SQL tool to execute the database scripts listed in the **📦 SQL Setup** section.
+### 🗂 3. Run SQL Setup Scripts (Manually)
+
+> ⚠️ First You need to run command **dotnet ef database update** for create Identity tables then you need to run sql command 
+
+You must manually execute the SQL scripts in order using **SSMS** or any SQL client:
+
+1. **Tables**
+2. **Initial Data Inserts** (`VoucherTypes`, `AspNetRoles`)
+3. **Table-Valued Types**
+4. **Stored Procedures**
+
+All scripts are available in the **📦 SQL Setup** section below.
+
+---
 
 ### ▶️ 4. Run the App
 
@@ -105,6 +118,14 @@ CREATE TABLE VoucherEntries (
     DebitAmount DECIMAL(18,2),
     CreditAmount DECIMAL(18,2)
 );
+```
+
+```sql
+INSERT INTO [TestingDB].[dbo].[AspNetRoles] ([Id], [Name], [NormalizedName], [ConcurrencyStamp])
+VALUES 
+('8485E8E3-3CEB-4A6D-A65D-9F3F01A912CB', 'Viewer', 'VIEWER', '7F456208-BBBF-4AFC-9891-54C0B411FE3E'),
+('85AE03E1-BBFD-4079-AA2A-D56C53F588FA', 'Admin', 'ADMIN', 'B2FD17BB-A6D1-4C33-B069-F9E2EAA04A0C'),
+('B0F361CB-8736-432A-9D6D-D8883CB28A8D', 'Accountant', 'ACCOUNTANT', '090D62B3-156C-435F-8403-EF1DBAC0CBCB');
 ```
 
 ---
@@ -237,8 +258,8 @@ END
 ## 👨‍💻 Developed By
 
 **Rezaul Karim**
-Email: `mdrezaulkarim31295@gmail.com`
-GitHub: [@mdrezaulkarim38](https://github.com/mdrezaulkarim38)
+📧 Email: `mdrezaulkarim31295@gmail.com`
+🐙 GitHub: [@mdrezaulkarim38](https://github.com/mdrezaulkarim38)
 
 ---
 
